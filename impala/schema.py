@@ -1,4 +1,4 @@
-from django.db.backends.schema import BaseDatabaseSchemaEditor
+from django.db.backends.base.schema import BaseDatabaseSchemaEditor
 from django.db.models.fields.related import ManyToManyField
 
 

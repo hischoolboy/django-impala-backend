@@ -1,5 +1,5 @@
 from django.utils import six
-from django.db.backends import BaseDatabaseOperations
+from django.db.backends.base.operations import BaseDatabaseOperations
 
 
 class DatabaseOperations(BaseDatabaseOperations):

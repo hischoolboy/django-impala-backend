@@ -1,7 +1,7 @@
 import sys
 import time
 from django.utils.six.moves import input
-from django.db.backends.creation import BaseDatabaseCreation
+from django.db.backends.base.creation import BaseDatabaseCreation
 
 
 class DatabaseCreation(BaseDatabaseCreation):

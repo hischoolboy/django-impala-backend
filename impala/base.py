@@ -5,10 +5,9 @@ Requires impyla: https://github.com/cloudera/impyla
 """
 from __future__ import unicode_literals
 
-from django.db.backends import (
-    BaseDatabaseFeatures,
-    BaseDatabaseWrapper
-)
+from django.db.backends.base.base import BaseDatabaseWrapper
+from django.db.backends.base.features import BaseDatabaseFeatures
+
 
 from django.core.exceptions import ImproperlyConfigured
 
@@ -28,8 +27,16 @@ from .validation import DatabaseValidation
 DatabaseError = Database.DatabaseError
 IntegrityError = Database.IntegrityError
 
+try:
+    from impala.hiveserver2 import HiveServer2Cursor
+except ImportError as exc:
+    raise ImproperlyConfigured("Error loading impyla module: %s" % exc)
 
-class ImpalaCursor(Database.Cursor):
+
+class ImpalaCursor(HiveServer2Cursor):
+    """
+    Cursor Wrapper
+    """
 
     def _escape_args(self, args):
         _args = []
@@ -69,6 +76,7 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
 class DatabaseWrapper(BaseDatabaseWrapper):
     vendor = 'impala'
+    display_name = 'Impala'
     operators = {
         'exact': '= %s',
         'iexact': 'LIKE %s',
@@ -87,16 +95,24 @@ class DatabaseWrapper(BaseDatabaseWrapper):
     }
 
     Database = Database
+    SchemaEditorClass = DatabaseSchemaEditor
+    # Classes instantiated in __init__().
+    client_class = DatabaseClient
+    creation_class = DatabaseCreation
+    features_class = DatabaseFeatures
+    introspection_class = DatabaseIntrospection
+    ops_class = DatabaseOperations
+    validation_class = DatabaseValidation
 
-    def __init__(self, *args, **kwargs):
-        super(DatabaseWrapper, self).__init__(*args, **kwargs)
-
-        self.features = DatabaseFeatures(self)
-        self.ops = DatabaseOperations(self)
-        self.client = DatabaseClient(self)
-        self.creation = DatabaseCreation(self)
-        self.introspection = DatabaseIntrospection(self)
-        self.validation = DatabaseValidation(self)
+    # def __init__(self, *args, **kwargs):
+    #     super(DatabaseWrapper, self).__init__(*args, **kwargs)
+    #
+    #     self.features = DatabaseFeatures(self)
+    #     self.ops = DatabaseOperations(self)
+    #     self.client = DatabaseClient(self)
+    #     self.creation = DatabaseCreation(self)
+    #     self.introspection = DatabaseIntrospection(self)
+    #     self.validation = DatabaseValidation(self)
 
     def get_connection_params(self):
         settings_dict = self.settings_dict
