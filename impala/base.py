@@ -135,6 +135,8 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             conn_params['host'] = settings_dict['HOST']
         if settings_dict['PORT']:
             conn_params['port'] = settings_dict['PORT']
+        if settings_dict['DATABASE']:
+            conn_params['database'] = settings_dict['DATABASE']
         return conn_params
 
     def get_new_connection(self, conn_params):
@@ -144,10 +146,10 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         # XXX:
         pass
 
-    def create_cursor(self):
+    def create_cursor(self, name=None):
         # XXX:
         cursor = self.connection.cursor()
-        cursor.execute('USE %s' % (self.settings_dict['NAME'] or 'default'))
+        cursor.execute('USE %s' % (self.settings_dict['DATABASE'] or 'default'))
         return cursor
 
     def _set_autocommit(self, autocommit):
